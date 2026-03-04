@@ -1,0 +1,16 @@
+Add nx global: npm add --global nx
+Verify: nx --version
+update global installation: npm update --global nx
+To add Nx to an existing repository: npx nx@latest init
+update nx in repo: nx migrate latest
+Create Workspace: nx create workspace <name> --preset=nest
+Add nx nest: nx add @nx/nest
+To create independent app like frontend and nexus platform: nx g @nx/nest:app apps/<name>
+Apps connection Graph: nx graph
+Create resourse inside an app with path:
+    nx generate @nestjs/schematics:resource <users> --sourceRoot=apps/<nexus-platform>/src --project=nexus-platform --type=rest --crud
+    // --crud or no-crud for dto,models and other diff
+To run an app: npx nx serve <app> : if no global nx 
+                   nx serve <app> : if global nx 
+
+ 
