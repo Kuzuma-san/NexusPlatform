@@ -13,4 +13,20 @@ Create resourse inside an app with path:
 To run an app: npx nx serve <app> : if no global nx 
                    nx serve <app> : if global nx 
 
+To Change repo to push to: git remote set-url origin git@github-<personal>:<username>/<repo>.git
+Test Authentication: ssh -T github-personal
  
+Set Correct Remote: git remote set-url origin git@github-personal:Kuzuma-san/NexusPlatform.git
+Verify: git remote -v
+To Push  : git push -u origin main
+
+Method 1: Install Sequelize in nest: npm install --save @nestjs/sequelize sequelize sequelize-typescript mysql2
+        To initialize using forRoot and use using forFeature
+Method 2: Or Install using: npm install --save sequelize sequelize-typescript mysql2 
+        To create a database provider instance and use: google for more info (try using both)
+
+After Method 1 import SequelizeModule in appmodule and initialize using forRoot
+Install config to use ConfigModule: npm i --save @nestjs/config
+            and Initialize: ConfigModule.forRoot(isGlobal: true); // load and parse the .env,merge key/value pairs from the .env file with environment variables assigned to process.env and store result in a private structure accessible via ConfigService
+
+Create User Model and Register to forRoot in AppModule and import in UserModule to use in UserService
