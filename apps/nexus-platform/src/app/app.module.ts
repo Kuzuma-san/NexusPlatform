@@ -4,9 +4,11 @@ import { AppService } from './app.service';
 import  { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -14,9 +16,10 @@ import { User } from '../users/entities/user.entity';
       dialect: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: 'nexus_db',
+      username: "admin",
+      password: "password123",
+      database: 'nexus_platform',
+      autoLoadModels: true,
       synchronize: true,
       models: [User]
     }),

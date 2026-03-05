@@ -1,4 +1,4 @@
-import { Model, Table, Column, DataType } from "sequelize-typescript";
+import { Model, Table, Column, DataType, DeletedAt } from "sequelize-typescript";
 
 @Table({tableName: 'users'})
 export class User extends Model<User>{
@@ -29,4 +29,6 @@ export class User extends Model<User>{
     })
     isVerified: boolean;
 
+    // @Column
+    // deletedAt?: any; //implement soft delete later
 }

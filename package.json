@@ -7,7 +7,8 @@
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.3",
-    "@nestjs/core": "^11.0.0",
+    "@nestjs/core": "^11.1.15",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/sequelize": "^11.0.1",
@@ -15,6 +16,8 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.4",
     "mysql2": "^3.18.2",
+    "pg": "^8.20.0",
+    "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sequelize": "^6.37.7",
