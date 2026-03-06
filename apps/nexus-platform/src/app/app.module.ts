@@ -9,6 +9,8 @@ import { ProductsModule } from '../products/products.module';
 import { OrdersModule } from '../orders/orders.module';
 import { ReviewsModule } from '../reviews/reviews.module';
 import { JwtModule } from '@nestjs/jwt';
+import { Product } from '../products/entities/product.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { JwtModule } from '@nestjs/jwt';
     ProductsModule,
     OrdersModule,
     ReviewsModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -28,7 +31,7 @@ import { JwtModule } from '@nestjs/jwt';
       database: process.env.DB_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [User]
+      models: [User,Product]
     }),
     JwtModule.register({
       global: true,

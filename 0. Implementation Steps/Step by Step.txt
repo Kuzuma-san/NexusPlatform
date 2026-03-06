@@ -49,6 +49,7 @@ Create Products Model and Register to forFeature and also import User in forRoot
 Create DTO: Timezone also used in DTO so find and send the dto from frontend
 
 Create Basic Crud and Controllers and test
+Also remove the password before returning: convert intance to object: user.get({plain:true}); delete userdata.password;
 
 ***********************BASIC PRODUCTS CRUD COMPLETED************************
 

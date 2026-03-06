@@ -10,11 +10,13 @@ export class AuthController {
 
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto){
+    console.log("Req hit the signup route");
     return this.authService.signup(createUserDto);
   }
 
   @Post('login')
   login(@Body() loginDto: CreateLoginDto){
+    console.log("Req hit the login route");
     return this.authService.login(loginDto.identifier, loginDto.password);
   }
 

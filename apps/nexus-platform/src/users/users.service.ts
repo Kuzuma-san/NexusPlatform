@@ -68,21 +68,22 @@ export class UsersService {
   private isEmail(value: string): boolean {
         return value.includes("@");
   }
-  isExistingUser(createUserDto: CreateUserDto): boolean{
-    const user = this.userModel.findAll({
+  async isExistingUser(email: string): Promise<boolean>{
+    const user = await this.userModel.findOne({
       where: [{
         // username: createUserDto.username,//two users can think of same username
-        email: createUserDto.email,
+        email,
       }]
     });
+
     if(user){
       //if true user with same email already exists and navigate to login
       return true;
     }
     return false;
   }
-  isUsernameTaken(createUserDto: CreateUserDto): boolean {
-    if(this.userModel.findOne({
+  async isUsernameTaken(createUserDto: CreateUserDto): Promise<boolean> {
+    if(await this.userModel.findOne({
       where: [{
         username: createUserDto.username,
       }]
