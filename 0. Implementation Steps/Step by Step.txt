@@ -63,4 +63,45 @@ Create basic signup and login for now...for signup check if email or username ta
 Create Service and Controller and test
 
 ***********************BASIC AUTH NO-CRUD COMPLETED********************************
+
 Initialize Jwt in AppModule and create a function in UserService to get the User from db and imprt the UserService in Auth
+
+***********************BASIC ORDERS CRUD*********************************
+
+Create OrderModel. Foreign key user and Order @BelongsTo user and User @HasMany Orders...Doesnt create columns in table and is just for sequeize to define realtionships bw users and orders
+        With the relations defined, you can do:
+        const orders = await this.orderModel.findAll({
+        include: [User] // this will give the user the order belong to cuz the relationship table is already defined by sequelize so it just searches that table and fetches the user
+        });
+Create OrderItemModel: Order can have many products and Product can be in many Orders
+Solution: Make a Junction table OrderItem to uniquely store which product belongs to which order and which order contains which product
+           1.   Apple     order1
+           2.   Banana.   order1
+           3.   Apple     order2
+OrderItemModel @BelongsTo order and product and product and order @HasMany orderItem: cuz order has many orderItems and product is also in many orderItems. Again for relation defining only
+Creating an Order must be enclosed in transaction cuz in case of error at any point of transaction all previous queries must rollback and only some queries updated and some not shouldnt happen
+Create CRUD Service and Controller and test
+
+**********************BASIC ORDERS CRUD COMPLETED*****************************
+
+***********************BASIC JWT IMPLEMENTATION W/O PASSPORT*********************************
+
+Register JWT in AuthModule and Use JwtService to sign Payload in login signup
+Implement AuthGuard service to protect endpoint by having the request have a token for validation
+Enable Global Use of Authentication
+Configure the provider in AuthModue {provide: APP_GUARD,useClass: AuthGuard}
+        This makes all endpoint use the custom AuthGuard class we implemented
+Now since every endpoint use Authguad the route which is used to assign token is also locked behind AuthGuard
+Hence we implement @Public Decorator to make routes public which bypasses the AuthGuard in AuthGuard class and use @Public() with the endpoint which doesnt use AuthGuard
+
+Note: Here we made Custom Authguard with no stratergy to implement guards in endpoints and also made all endpoints secure and are making the endpoints which do not need Guards as Public
+In Passport Integration we'll use default AuthGuard by Passport and use our custom jwt stratergy to validate user and attach the payload to the request
+
+                    ***JWT PASSPORT INTEGRATION***
+                  
+Passport is the most popular node.js authentication library, well-known by the community and successfully used in many production applications
+
+
+
+***************JWT IMPLEMENTATION PASSPORT AND NO PASSPORT COMPLETED*******************
+

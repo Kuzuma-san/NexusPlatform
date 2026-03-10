@@ -1,4 +1,5 @@
-import { Model, Table, Column, DataType, DeletedAt } from "sequelize-typescript";
+import { Model, Table, Column, DataType, DeletedAt, HasMany } from "sequelize-typescript";
+import { Order } from "../../orders/entities/order.entity";
 
 @Table({tableName: 'users'})
 export class User extends Model<User>{
@@ -28,6 +29,9 @@ export class User extends Model<User>{
         defaultValue: false,
     })
     isVerified: boolean;
+
+    @HasMany(() => Order)
+    orders: Order; // a user has many orders...Not a column just for sequelize to create relation and use those relations if needed
 
     // @Column
     // deletedAt?: any; //implement soft delete later

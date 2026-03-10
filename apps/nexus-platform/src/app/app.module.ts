@@ -11,6 +11,8 @@ import { ReviewsModule } from '../reviews/reviews.module';
 import { JwtModule } from '@nestjs/jwt';
 import { Product } from '../products/entities/product.entity';
 import { AuthModule } from '../auth/auth.module';
+import { OrderItem } from '../orders/entities/order-item.entity';
+import { Order } from '../orders/entities/order.entity';
 
 @Module({
   imports: [
@@ -31,11 +33,7 @@ import { AuthModule } from '../auth/auth.module';
       database: process.env.DB_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [User,Product]
-    }),
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
+      models: [User,Product,OrderItem,Order]
     }),
   ],
   controllers: [AppController],
