@@ -9,14 +9,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService,
   ) {}
 
-  @Public()
+  // @Public()
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto){
     console.log("Req hit the signup route");
     return this.authService.signup(createUserDto);
   }
 
-  @Public()
+  // @Public()
   @Post('login')
   login(@Body() loginDto: CreateLoginDto){
     console.log("Req hit the login route");

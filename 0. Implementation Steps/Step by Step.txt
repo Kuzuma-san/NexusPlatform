@@ -98,10 +98,17 @@ Note: Here we made Custom Authguard with no stratergy to implement guards in end
 In Passport Integration we'll use default AuthGuard by Passport and use our custom jwt stratergy to validate user and attach the payload to the request
 
                     ***JWT PASSPORT INTEGRATION***
+
+Now we'll remove the custom Authguard and use default Passport Authguard with our custom jwt stratergy and also remove Public Decorator file
+ALso configure JwtModule again for jwt as we dont need every endpoint using Authguard and only the ones having Guards must have auth enabled
                   
-Passport is the most popular node.js authentication library, well-known by the community and successfully used in many production applications
+PASSPORT is Used For:
+Authenticate a user by verifying their "credentials" (such as username/password, JSON Web Token (JWT), or identity token from an Identity Provider)
+Manage authenticated state (by issuing a portable token, such as a JWT, or creating an Express session)
+Attach information about the authenticated user to the Request object for further use in route handlers
+NOTE: For any Passport strategy you choose, you'll always need the @nestjs/passport and passport packages. Then, you'll need to install the strategy-specific package (e.g., passport-jwt or passport-local) that implements the particular authentication strategy you are building. In addition, you can also install the type definitions for any Passport strategy, as shown above with @types/passport-local, which provides assistance while writing TypeScript code.
 
-
+Implemented JWt Stratergy and validate by attaching payload to request i.e req.user
+Can also create JwtGuard Class and extend AuthGuard('jwt') to directly use UseGuards(JwtGuard) instead of UseGuards(AuthGuard'jwt')
 
 ***************JWT IMPLEMENTATION PASSPORT AND NO PASSPORT COMPLETED*******************
-

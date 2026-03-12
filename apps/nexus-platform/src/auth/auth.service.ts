@@ -4,6 +4,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import bcrypt from 'bcrypt';
 import { access } from 'fs';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '../users/entities/user.entity';
 @Injectable()
 export class AuthService {
 
@@ -46,20 +47,26 @@ export class AuthService {
     async login(identifier: string, password: string) {
         //identifier can be email or username with password 
         //send both identifier and hash this password so that it matches the hash in db
-        const user = await this.userService.findUser(identifier);
-        if(!user){
-            throw new NotFoundException("User Not Found");
-        }
-        const hashedPassword = user.password;
-        if(!bcrypt.compare(password, hashedPassword) || password !== hashedPassword){
-            throw new UnauthorizedException("Invalid credentials");
-        }
-        // const { password, ...safeUser } = user.get({ plain: true });
-        // return safeUser;
+        const user = await this.validateUser(identifier, password);
+        const id = user.id;
+        const email = user.email;
         const payload = {
             sub: user.id,
             email: user.email,//extra information you want available after authentication
         }
         return { access_token: this.jwtService.sign(payload) };
+    }
+    
+    async validateUser(identifier: string, pass: string): Promise<any> {
+        const user = await this.userService.findUser(identifier);
+        if(!user){
+            throw new NotFoundException("User Not Found");
+        }
+        const hashedPassword = user.password;
+        if(!bcrypt.compare(pass, hashedPassword) || pass !== hashedPassword){
+            throw new UnauthorizedException("Invalid credentials");
+        }
+        const { password, ...result} = user;
+        return result;
     }
 }

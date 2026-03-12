@@ -13,6 +13,7 @@ import { Request } from 'express';
 import { IS_PUBLIC_KEY } from './public.decorator';
 import { Reflector } from '@nestjs/core';
 
+//Similarly we can make a RolesGuard and @Roles decorator to check the role and if a role is Admin we can make it bypass certain things
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService, private reflector: Reflector) {}
@@ -42,7 +43,7 @@ export class AuthGuard implements CanActivate {
       // so that we can access it in our route handlers
       request['user'] = payload; //attaching an object named user on request with payload options inside
     } catch {
-      throw new UnauthorizedException("Not Not");
+      throw new UnauthorizedException("Error Verifying Token");
     }
     return true;
   }
