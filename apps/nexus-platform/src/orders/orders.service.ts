@@ -58,7 +58,7 @@ export class OrdersService {
       const order = await this.orderModel.create({
         totalAmount,
         currency: createOrderDto.currrency,
-        userId: 1,
+        userId: 2,
       }, {transaction: t});
       //create orderITem for each Item and reduce the stock
       for(const item of createOrderDto.items){

@@ -4,6 +4,7 @@ update global installation: npm update --global nx
 To add Nx to an existing repository: npx nx@latest init
 update nx in repo: nx migrate latest
 Create Workspace: nx create workspace <name> --preset=nest
+To Delete Nx Workspace : nx g @nx/workspace:remove auth
 Add nx nest: nx add @nx/nest
 To create independent app like frontend and nexus platform: nx g @nx/nest:app apps/<name>
 Apps connection Graph: nx graph
@@ -82,9 +83,9 @@ OrderItemModel @BelongsTo order and product and product and order @HasMany order
 Creating an Order must be enclosed in transaction cuz in case of error at any point of transaction all previous queries must rollback and only some queries updated and some not shouldnt happen
 Create CRUD Service and Controller and test
 
-**********************BASIC ORDERS CRUD COMPLETED*****************************
+********************** BASIC ORDERS CRUD COMPLETED *****************************
 
-***********************BASIC JWT IMPLEMENTATION W/O PASSPORT*********************************
+*********************** BASIC JWT IMPLEMENTATION W/O PASSPORT *********************************
 
 Register JWT in AuthModule and Use JwtService to sign Payload in login signup
 Implement AuthGuard service to protect endpoint by having the request have a token for validation
@@ -97,7 +98,7 @@ Hence we implement @Public Decorator to make routes public which bypasses the Au
 Note: Here we made Custom Authguard with no stratergy to implement guards in endpoints and also made all endpoints secure and are making the endpoints which do not need Guards as Public
 In Passport Integration we'll use default AuthGuard by Passport and use our custom jwt stratergy to validate user and attach the payload to the request
 
-                    ***JWT PASSPORT INTEGRATION***
+                    *** JWT PASSPORT INTEGRATION ***
 
 Now we'll remove the custom Authguard and use default Passport Authguard with our custom jwt stratergy and also remove Public Decorator file
 ALso configure JwtModule again for jwt as we dont need every endpoint using Authguard and only the ones having Guards must have auth enabled
@@ -111,4 +112,72 @@ NOTE: For any Passport strategy you choose, you'll always need the @nestjs/passp
 Implemented JWt Stratergy and validate by attaching payload to request i.e req.user
 Can also create JwtGuard Class and extend AuthGuard('jwt') to directly use UseGuards(JwtGuard) instead of UseGuards(AuthGuard'jwt')
 
-***************JWT IMPLEMENTATION PASSPORT AND NO PASSPORT COMPLETED*******************
+*************** JWT IMPLEMENTATION PASSPORT AND NO PASSPORT COMPLETED ***********************
+
+********************** RBAC IMPLEMENTATION ***********************************
+
+Create DB for user, role, permission 
+Also make relation table of user,role and role,permission i.e UserRole and RolePermission and make @HasMany in user role and permission for sequelize to make relations and joins
+Now import all the Models in the AuthModue using forFeature
+
+User -> UserRole -> Role -> RolePermission -> Permission
+We get role from user in userRole and Permission from role in RolePermission
+
+                *********** Unique Contraints IMPLEMENTATION ***********
+Implement Unique Constraint: taking eg of userRoles a single user and role can appear multiple times and the db will just accept it
+                but a User cannot have the same role twice so we use UniqueContrains such that implementing it make the implemented feilds Unique which in our case is user and role pair
+        @Table({tableName: 'user_role',
+                indexes: [
+                {
+                unique: true,
+                fields: ["userId", "roleId"]
+                }]})
+                *********** INDEXING IMPLEMENTATION ************
+Implement INDEXING: db searches each row at a time to check conditions and return the matched data
+                but this is really slow for large DB's with hundreds of thousands of rows
+An INDEX is like a sorted lookup structure: Think of like a book index page: X -> page10, Y -> page 20, Z -> page 50
+                Hence we dont need the entire book(DB) we just jump to specific page(INDEX)
+Structure: id index eg: 1 -> row pointer 2 -> row pointer i.e give each id an index 
+Real DB use structure called B-TREE (It was a Binary Search Tree in GPT example)
+Imagine Millions of Rows in UserRole and we need to find where userId is 25..Instead of searching one by one jump to where userId is 25 for users..
+
+Implementation: making userId and roleId indexed:
+        @Table({
+                tableName: "role_permission",
+                indexes: [
+                {
+                unique: true,
+                fields: ["roleId", "permissionId"]//composite key already acts as an index but we still implment index down for faster queries like where userId = ?
+                },
+                {
+                name: "provide_idx_name_or_sequelize_gives_random_name"
+                fields: ["roleId"] //indexing roleId
+                },
+                {
+                name: "idx_role_permission_role"
+                fields: ["permissionId"]
+        }]})
+
+                *********** SEEDERS IMPLEMENTATION ************
+Seeding is basically populating the Database with default values on startup
+Problems with Manually Adding Roles/Permissions in the Database: 
+        Problem 1 — Environments Become Inconsistent: In professional app we have many environments(eg. production stagin local)If manually inserts app behaves differently for diff environments
+        Problem 2 — Deployments Break: Imagine adding a new permission in code but it doesnt exist in db
+        Problem 3 — New Developers Cannot Run the App: someone clones your project. the roles will be missing
+        Problem 4 — Hard to Track Changes: we later change seller can also order products but with manual db change we cant keep track of the change on git
+Professional Solution: DATABASE SEEDING
+        A SEED script automatically inserts default data into DB.These run automatically during setup
+What to Seed: Any kind of static data that is commonly shared between entities or is mainly used for testing
+
+Professional RBAC FLOW: 
+Database↓  
+↓Seed default roles 
+↓Seed default permissions
+↓Map roles → permissions
+↓Assign roles → users
+↓Load permissions during login
+↓Store permissions inside JWT
+↓Create Permission decorator
+↓Create Permission guard
+↓Protect endpoints
+Control frontend UI

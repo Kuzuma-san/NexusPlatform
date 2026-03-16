@@ -13,6 +13,11 @@ import { Product } from '../products/entities/product.entity';
 import { AuthModule } from '../auth/auth.module';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { Order } from '../orders/entities/order.entity';
+import { RbacModule } from '../rbac/rbac.module';
+import { Permission } from '../rbac/entities/permissions.entity';
+import { Role } from '../rbac/entities/roles.entity';
+import { RolePermission } from '../rbac/entities/role-permission.entity';
+import { UserRole } from '../rbac/entities/user-role.entity';
 
 @Module({
   imports: [
@@ -21,6 +26,7 @@ import { Order } from '../orders/entities/order.entity';
     OrdersModule,
     ReviewsModule,
     AuthModule,
+    RbacModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -33,7 +39,7 @@ import { Order } from '../orders/entities/order.entity';
       database: process.env.DB_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [User,Product,OrderItem,Order]
+      models: [User,Product,OrderItem,Order,Permission,Role,RolePermission,UserRole]
     }),
   ],
   controllers: [AppController],

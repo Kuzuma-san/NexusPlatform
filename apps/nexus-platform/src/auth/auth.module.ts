@@ -9,12 +9,16 @@ import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
 import  { AuthGuard } from './auth.guard'
 import { JwtStrategy } from './jwt.stratergy';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Role } from '../rbac/entities/roles.entity';
+import { Permission } from '../rbac/entities/permissions.entity';
 
 
 @Module({
   imports: [UsersModule,
     PassportModule,
     ConfigModule.forRoot(),
+    // SequelizeModule.forFeature([Role,RolePermission,Permission,UserRole]),
     // PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.registerAsync({
       //we need to tell authmodule how to create a token

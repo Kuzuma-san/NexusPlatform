@@ -4,7 +4,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 // import { AuthGuard } from '../auth/auth.guard'; // custom AuthGuard
 import { AuthGuard } from '@nestjs/passport'; //passport AuthGuard
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('products')
 export class ProductsController {
