@@ -26,7 +26,7 @@ export class OrdersService {
   ){}
 
   // only admin can create order else order must pass through users cart
-  async create(createOrderDto: CreateOrderDto) {
+  async create(createOrderDto: CreateOrderDto, userId: number) {
     // order dto has items:arr of products  and currency i.e same for every product in a timezone
     const currency = createOrderDto.currrency;
     // const sequelize = new Sequelize();//inject sequelize connection instead
@@ -58,7 +58,7 @@ export class OrdersService {
       const order = await this.orderModel.create({
         totalAmount,
         currency: createOrderDto.currrency,
-        userId: 2,
+        userId,
       }, {transaction: t});
       //create orderITem for each Item and reduce the stock
       for(const item of createOrderDto.items){
