@@ -7,7 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
-import  { AuthGuard } from './auth.guard'
+import  { AuthGuard } from '../auth/guards/auth.guard';
 import { JwtStrategy } from './jwt.stratergy';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Role } from '../rbac/entities/roles.entity';

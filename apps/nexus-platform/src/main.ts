@@ -9,6 +9,9 @@ import { AppModule } from './app/app.module';
 import { seedPermissions } from './rbac/seeders/seed-permissions';
 import { seedRoles } from './rbac/seeders/seed-roles';
 import { seedRolePermissions } from './rbac/seeders/seed-role-permissions';
+import { seedUsers } from './rbac/seeders/seed-users';
+import { seedUserRoles } from './rbac/seeders/seed-user-roles';
+import { removeGuestRole } from './rbac/seeders/seed-cleanup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +19,8 @@ async function bootstrap() {
   await seedRoles();
   await seedPermissions();
   await seedRolePermissions();
+  await seedUsers();
+  await seedUserRoles();
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   const port = process.env.PORT || 3000;

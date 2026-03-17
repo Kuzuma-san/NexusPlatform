@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Reflector } from '@nestjs/core';
 
 //Similarly we can make a RolesGuard and @Roles decorator to check the role and if a role is Admin we can make it bypass certain things

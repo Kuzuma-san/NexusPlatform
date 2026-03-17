@@ -4,7 +4,7 @@ export const ROLES = [
   'admin',
   'seller',
   'user',
-  'guest',
+  // 'guest',
 ];
 
 export async function seedRoles() {
