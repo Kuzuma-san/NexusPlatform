@@ -42,6 +42,6 @@ Thumbs.db
 .nx/workspace-data
 
 *.txt
-0. Implementation Steps/
+0. Implementation Steps
 .env
 docker-compose.yaml

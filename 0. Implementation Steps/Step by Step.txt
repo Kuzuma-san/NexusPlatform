@@ -181,3 +181,18 @@ Database↓
 ↓Create Permission guard
 ↓Protect endpoints
 Control frontend UI
+
+Create constants for ROLES,USERS,PERMISSIONS,USER_ROLES and ROLE_PERMISSIONS easy access
+Now create roles,permissions,role_permission,users and user_role seeders in the rbac
+Role seeder: create a basic Role array with default roles and add the roles using a forEach loop
+Same for Permissions: Create an array of permissions and add them using findOrCreate option
+For ROLE_PERMISSIONS: traverse for every role and for every role find the mapped permissions from constant and then find the permission and create role_permission using role id and permissionid
+Now Same for default testing USers and UserRoles
+
+                ********* PERMISSIONS DECORATOR AND GUARDS ***********
+Decorator: @RequirePermissions('user:create') Guards check: Does request.user have 'user:create' permission?
+Create require decorator and permissionguard where require permission provides the metadata with permission required for the action and
+permission guard retrieves the permission and checks it agains the user role i.e if the role has permission to perform the action
+
+Note: Use PermissionGuard after jwt AuthGuard cuz the user needs to be attached to req first so we can check for the user role ad permission
+Also Note Using PermissionGuard above Controller doesnt work as the user doesnt get defined and is only working when placed after jwt

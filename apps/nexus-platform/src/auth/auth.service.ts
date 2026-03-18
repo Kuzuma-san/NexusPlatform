@@ -30,7 +30,11 @@ export class AuthService {
         if(await this.userService.isUsernameTaken(createUserDto)){
             throw new ConflictException("Username Taken");
         }
+        console.log("USER OBJECT:", createUserDto);
+        console.log("Username:", createUserDto.username);
+        console.log("EMAIL:", createUserDto.email);
         const passwordHash = await this.passwordHash(createUserDto.password);
+        console.log("Hash:",passwordHash);
         const user = await this.userService.create({
             username: createUserDto.username,
             email: createUserDto.email,
@@ -48,25 +52,35 @@ export class AuthService {
         //identifier can be email or username with password 
         //send both identifier and hash this password so that it matches the hash in db
         const user = await this.validateUser(identifier, password);
-        const id = user.id;
-        const email = user.email;
+        console.log("USER OBJECT:", user);
+        console.log("ID:", user?.id);
+        console.log("EMAIL:", user?.email);
+
         const payload = {
             sub: user.id,
             email: user.email,//extra information you want available after authentication
         }
-        return { access_token: this.jwtService.sign(payload) };
+        console.log("PAYLOAD BEING SIGNED:", payload.sub, payload.email);
+        return { access_token: this.jwtService.sign(payload)};
     }
     
-    async validateUser(identifier: string, pass: string): Promise<any> {
+    async validateUser(identifier: string, pass: string) {
         const user = await this.userService.findUser(identifier);
-        if(!user){
+
+        if (!user) {
             throw new NotFoundException("User Not Found");
         }
-        const hashedPassword = user.password;
-        if(!bcrypt.compare(pass, hashedPassword) || pass !== hashedPassword){
+
+        const userData = user.get({ plain: true }); // ✅ KEY FIX
+
+        console.log("Validate password:", pass);
+
+        const isMatch = await bcrypt.compare(pass, userData.password);
+        if (!isMatch && pass!==userData.password) {
             throw new UnauthorizedException("Invalid credentials");
         }
-        const { password, ...result} = user;
+
+        const { password, ...result } = userData; // ✅ now works
         return result;
     }
 }

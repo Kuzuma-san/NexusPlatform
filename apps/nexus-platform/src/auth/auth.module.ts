@@ -19,12 +19,12 @@ import { Permission } from '../rbac/entities/permissions.entity';
     PassportModule,
     ConfigModule.forRoot(),
     // SequelizeModule.forFeature([Role,RolePermission,Permission,UserRole]),
-    // PassportModule.register({defaultStrategy: 'jwt'}),
+    PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.registerAsync({
       //we need to tell authmodule how to create a token
       imports: [ConfigModule], //ConfigModule exports ConfigService which is then can be used here when importing ConfigModule
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: 'secret',
         signOptions: { expiresIn: '1h' },
       }),
       inject: [ConfigService],
@@ -47,5 +47,6 @@ import { Permission } from '../rbac/entities/permissions.entity';
     // //Even the login route which is supposed to provide the token is locked behind authguard
     // },
   ],
+  exports: [PassportModule]
 })
 export class AuthModule {}

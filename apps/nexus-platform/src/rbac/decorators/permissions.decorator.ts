@@ -2,9 +2,8 @@ import { SetMetadata } from "@nestjs/common";
 
 export const PERMISSIONS_KEY = 'permissions';
 
-export const RequirePermissions = (...permissions: string[]) => {
+export const RequirePermissions = (...permissions: string[]) => 
     SetMetadata(PERMISSIONS_KEY, permissions);
-}
 
 //Setmetadata is used to add custom data to route or controller
 // Now route has hidden metadata:GET /login
