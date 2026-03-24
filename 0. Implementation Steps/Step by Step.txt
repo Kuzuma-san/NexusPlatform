@@ -6,7 +6,10 @@ update nx in repo: nx migrate latest
 Create Workspace: nx create workspace <name> --preset=nest
 To Delete Nx Workspace : nx g @nx/workspace:remove auth
 Add nx nest: nx add @nx/nest
-To create independent app like frontend and nexus platform: nx g @nx/nest:app apps/<name>
+To create backend:  nexus platform: nx g @nx/nest:app apps/<name>
+To remove backend: or nackend apps: nx g remove <your-app-name>
+Nx React Dependency: npm install -D @nx/react
+To create react frontend: npx nx g @nx/react:app frontend --directory=apps/frontend --bundler=vite --e2eTestRunner=none --style=css
 Apps connection Graph: nx graph
 Create resourse inside an app with path:
     nx generate @nestjs/schematics:resource <users> --sourceRoot=apps/<nexus-platform>/src --project=nexus-platform --type=rest --crud
@@ -196,3 +199,9 @@ permission guard retrieves the permission and checks it agains the user role i.e
 
 Note: Use PermissionGuard after jwt AuthGuard cuz the user needs to be attached to req first so we can check for the user role ad permission
 Also Note Using PermissionGuard above Controller doesnt work as the user doesnt get defined and is only working when placed after jwt
+
+******************************* RBAC IMPLEMENTATION COMPLETED***********************************
+
+************************************************************************************************
+                                      FRONTEND      
+************************************************************************************************

@@ -28,7 +28,8 @@ export class Product extends Model<Product> {
     price: number;
 
     @Column({
-        type: DataType.STRING
+        type: DataType.STRING,
+        defaultValue: "INR",
     })
     currency: Currency;
 

@@ -55,7 +55,7 @@ export class PermissionGuard implements CanActivate {
         return true;
     }
 }
-function hasPermission(userPermissions: string[], required: string[]): boolean {
+export function hasPermission(userPermissions: string[], required: string[]): boolean {
         // 4. Check permissions
     for (const perm of required) {
         if (!userPermissions.includes(perm)) {
@@ -64,12 +64,12 @@ function hasPermission(userPermissions: string[], required: string[]): boolean {
     }
     return true;
 }
-async function getUserRoles(userId: number): Promise<UserRole[]>{
+export async function getUserRoles(userId: number): Promise<UserRole[]>{
     return await UserRole.findAll({
             where: {userId},
     });
 }
-async function getRolePermissions(roleIds: number[]): Promise<RolePermission[]>{
+export async function getRolePermissions(roleIds: number[]): Promise<RolePermission[]>{
     return await RolePermission.findAll({
         where: {
             roleId: {
@@ -78,8 +78,7 @@ async function getRolePermissions(roleIds: number[]): Promise<RolePermission[]>{
         },
     });//array of rolePermission objects
 }
-
-async function getPermissions(permissionIds: number[]): Promise<Permission[]>{
+export async function getPermissions(permissionIds: number[]): Promise<Permission[]>{
     return await Permission.findAll({
         where: {
             id: {

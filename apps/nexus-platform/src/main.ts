@@ -23,6 +23,10 @@ async function bootstrap() {
   await seedUserRoles();
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  app.enableCors({
+    origin: 'http://localhost:4200', // frontend URL
+    credentials: true,
+  });
   const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(

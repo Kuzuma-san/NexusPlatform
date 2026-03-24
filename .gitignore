@@ -45,3 +45,6 @@ Thumbs.db
 0. Implementation Steps
 .env
 docker-compose.yaml
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
