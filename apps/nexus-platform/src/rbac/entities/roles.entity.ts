@@ -2,19 +2,23 @@
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
 import { UserRole } from "../../rbac/entities/user-role.entity";
 import { RolePermission } from "./role-permission.entity";
+import { InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({tableName: 'roles'})
-export class Role extends Model<Role>{
+export class Role extends Model<
+    InferAttributes<Role>,
+    InferCreationAttributes<Role, {omit: 'userRole' | 'rolePermission'}>
+>{
     @Column({
         type: DataType.STRING,
         unique: true,
         allowNull: false
     })
-    name: string;
+    declare name: string;
 
     @HasMany(() => UserRole)
-    userRole: UserRole[];
+    declare userRole: UserRole[];
 
     @HasMany(() => RolePermission)
-    rolePermission: RolePermission[];
+    declare rolePermission: RolePermission[];
 }

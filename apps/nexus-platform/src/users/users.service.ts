@@ -1,8 +1,9 @@
-import { flatten, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/sequelize';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -24,10 +25,14 @@ export class UsersService {
 
   //Admin
   async findOne(id: number): Promise<User> {
-    return await this.userModel.findOne({
+    const user =  await this.userModel.findOne({
       where: {id: id},
       attributes: {exclude: ['password']}
     });
+    if(!user) {
+      throw new NotFoundException("User Not Found!");
+    }
+    return user;
   }
 
   //User...Also check if user is not updating other user-> taking th eid from req body and not by user himself so not needed
@@ -55,7 +60,7 @@ export class UsersService {
         where: {
           email: identifier,
         },
-        attributes: ['username','email','password'],
+        attributes: ['username','email','password','id'],
       });
     }
     return this.userModel.findOne({
@@ -70,10 +75,10 @@ export class UsersService {
   }
   async isExistingUser(email: string): Promise<boolean>{
     const user = await this.userModel.findOne({
-      where: [{
+      where: {
         // username: createUserDto.username,//two users can think of same username
         email,
-      }]
+      }
     });
 
     if(user){
@@ -84,12 +89,29 @@ export class UsersService {
   }
   async isUsernameTaken(createUserDto: CreateUserDto): Promise<boolean> {
     if(await this.userModel.findOne({
-      where: [{
+      where: {
         username: createUserDto.username,
-      }]
+      }
     })){
       return true;
     }
     return false;
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, userId: number){
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(refreshToken,salt);
+
+    return this.userModel.update(
+      {currentHashedRefreshToken: hash},{
+        where: {id: userId}
+      });
+  }
+
+  async removeRefreshToken(userId: number){
+    const [numberOfRowsAffected] = await this.userModel.update({currentHashedRefreshToken: null},{
+      where: {id: userId}
+    });
+    return {numberOfRowsAffected};
   }
 }

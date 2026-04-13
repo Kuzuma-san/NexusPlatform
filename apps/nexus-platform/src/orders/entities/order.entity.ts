@@ -1,22 +1,27 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table, Model, HasMany } from "sequelize-typescript";
-import { Currency, CURRENCY_VALUES } from "../../products/entities/product.entity";
+import { Currency, CURRENCY_VALUES } from "../../common/constants/currency";
 import { User } from "../../users/entities/user.entity";
 import { OrderItem } from "./order-item.entity";
+import { InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({tableName: 'orders'})
-export class Order extends Model<Order> {
+export class Order extends Model<
+    InferAttributes<Order>,
+    InferCreationAttributes<Order, {omit: 'user' | 'items'}>
+> {
     // @Column
     // orderNumber: string;
 
     @Column({
         type: DataType.DECIMAL,
     })
-    totalAmount: number;
+    declare totalAmount: number;
 
     @Column({
         type: DataType.ENUM(...CURRENCY_VALUES),
+        defaultValue: "INR"
     })
-    currency: Currency;
+    declare currency: Currency;
 
     @ForeignKey(
         () => {
@@ -24,12 +29,12 @@ export class Order extends Model<Order> {
         }
     )
     @Column
-    userId: number;
+    declare userId: number;
     @BelongsTo(() => User)// 1 order per user 
-    user: User;
+    declare user: User;
 
     @HasMany(() => OrderItem)
-    items: OrderItem[];
+    declare items: OrderItem[];
 
 
     //As for products one order can have many products and one product can be in may orders

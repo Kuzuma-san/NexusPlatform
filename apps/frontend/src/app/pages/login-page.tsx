@@ -17,8 +17,14 @@ export function Login(){
             identifier: data.identifier,
             password:   data.password,
         });
-        localStorage.setItem('nexus_token',response.data.access_token);
-        alert(`Login Successful ${response.data.access_token}`);
+        if(!response.data.accessToken){
+            alert("No Token Sent From Backend!")
+            return;
+        }
+        localStorage.setItem('nexus_token', response.data.accessToken);
+        localStorage.setItem('nexus_refresh_token', response.data.refreshToken);
+        alert(`Login Successful ${response.data.accessToken}`);
+        alert(`Login Successful ${response.data.refreshToken}`);
         navigate("/dashboard");
     }
     return (

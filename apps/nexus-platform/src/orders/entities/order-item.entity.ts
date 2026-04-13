@@ -2,33 +2,37 @@ import { BelongsTo, Column, DataType, ForeignKey, Table, Model } from "sequelize
 import { Product } from "../../products/entities/product.entity";
 import { Order } from "./order.entity";
 import { Col } from "sequelize/types/utils";
+import { InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({tableName: 'order_item'})
-export class OrderItem extends Model<OrderItem> {
+export class OrderItem extends Model<
+    InferAttributes<OrderItem>,
+    InferCreationAttributes<OrderItem, {omit: 'order' | 'product'}>
+> {
     @Column
     @ForeignKey(() => Order)
-    orderId: number;
+    declare orderId: number;
     @BelongsTo(() => Order)
-    order: Order;
+    declare order: Order;
 
     @Column
     @ForeignKey(() => Product)
-    productId: number;
+    declare productId: number;
     @BelongsTo(() => Product)
-    product: Product;
+    declare product: Product;
 
     @Column
-    quantity: number;
+    declare quantity: number;
 
     @Column({
         type: DataType.DECIMAL,
     })
-    priceAtPurchase: number;
+    declare priceAtPurchase: number;
 
     @Column({
         type: DataType.DECIMAL,
     })
-    price: number; // stores snapshot of the price so if price changes later the orderitem remains same
+    declare price: number; // stores snapshot of the price so if price changes later the orderitem remains same
     //for this we must first calculate the orderItem price from product and quantity and then calculate orderItem price and then use that price and not the productPrice cuz that would beat the purpose of having a orderItem price in the first place
 
 }

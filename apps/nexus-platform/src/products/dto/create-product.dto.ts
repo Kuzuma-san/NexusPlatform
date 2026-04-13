@@ -1,15 +1,23 @@
-import { Currency } from "../entities/product.entity";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { Currency, CURRENCY_VALUES, SUPPORTED_CURRENCIES } from "../../common/constants/currency";
 
 // Find the user location and Timezone to find the currency or do so in frontend and pass in body
 export class CreateProductDto {
-    name: string;
+    @IsString()
+    name!: string;
 
-    price: number;
+    @IsNumber()
+    price!: number;
 
-    currency: Currency;
+    @IsEnum(SUPPORTED_CURRENCIES)
+    @IsOptional()
+    currency?: Currency;
 
-    desciption: string;
+    @IsString()
+    @IsOptional()
+    description?: string;
 
-    stock: number;
+    @IsNumber()
+    stock!: number;
 
 }

@@ -5,7 +5,7 @@ import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Product } from '../products/entities/product.entity';
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 
 @Injectable()
@@ -27,18 +27,19 @@ export class OrdersService {
 
   // only admin can create order else order must pass through users cart
   async create(createOrderDto: CreateOrderDto, userId: number) {
-    // order dto has items:arr of products  and currency i.e same for every product in a timezone
-    const currency = createOrderDto.currrency;
     // const sequelize = new Sequelize();//inject sequelize connection instead
     // const transaction = sequelize.transaction();//M1 
     // M1 Transaction: const transaction = sequelize.transaction() on start then transaction.commit on end or transaction.rollback on error
     //Cons: manual rollack on error in catch block and manual commit in try
     //M2 (recommened): use a callback function in sequelize.transaction...auto commits on function end and auto rollback on error
+    const productIds = createOrderDto.items.map((item) => item.productId);
+    const products = await this.productModel.findAll({where:{id: {[Op.in]: productIds}}});
+    const idToProductMap = new Map(products.map(p => [p.id, p]));
     return await this.sequelize.transaction(async (t) => {
       //M2 : pass t as option while running db queries so sequelize knows what to rollback
-      var totalAmount = 0;
+      let totalAmount = 0;
       for(const item of createOrderDto.items){
-        const product = await this.productModel.findByPk(item.productId, {transaction: t});
+        const product = idToProductMap.get(item.productId);
         if(!product){
           throw new NotFoundException("Product not Found");
         }
@@ -57,32 +58,27 @@ export class OrdersService {
       //Create the order after all order items are looped through
       const order = await this.orderModel.create({
         totalAmount,
-        currency: createOrderDto.currrency,
+        currency: createOrderDto.currency ?? "INR",
         userId,
       }, {transaction: t});
       //create orderITem for each Item and reduce the stock
-      for(const item of createOrderDto.items){
-        const product = await this.productModel.findByPk(item.productId,{transaction:t});
-        const quantity = item.quantity;
-        const priceAtPurchase = product.price;
-        const price = product.price * quantity;
-        const updatedStock = product.stock - quantity;
+      await Promise.all(
+        createOrderDto.items.map((item) => {//With Promise.all, you use .map() instead of a for loop. .map() does not await — it just collects all the Promises into an array, then Promise.all fires them together:
+          const product = idToProductMap.get(item.productId)!;
+          
+          return Promise.all([
+            this.orderItemModel.create({
+              orderId: order.id,
+              productId: product.id,
+              quantity: item.quantity,
+              priceAtPurchase: product.price,
+              price: product.price * item.quantity,
+            }, { transaction: t }),
 
-        await this.orderItemModel.create({
-          orderId: order.id,
-          productId: product.id,
-          quantity,
-          priceAtPurchase,
-          price,
-        },{transaction:t});
-
-        await product.update({
-          stock: updatedStock,
-        },{
-          where: {id: product.id},
-          transaction: t,
-        });
-      }
+            product.decrement('stock', { by: item.quantity, transaction: t }),
+          ]);
+        })
+      );//this just runs all at once and then wait for promises to resolve unlike waiting for each promise to resolve one at a time using await in a for loop (map is synchronus)
     });
   }
 

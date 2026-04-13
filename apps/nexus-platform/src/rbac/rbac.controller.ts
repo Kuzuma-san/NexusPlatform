@@ -1,6 +1,7 @@
 import { Body, Controller, Get, UseGuards, Request } from '@nestjs/common';
 import { RbacService } from './rbac.service';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthRequest } from '../interfaces/express';
 
 @Controller('rbac')
 export class RbacController {
@@ -9,7 +10,7 @@ export class RbacController {
   @UseGuards(AuthGuard('jwt'))
   @Get("/permissions")
   findAllPermissions(
-    @Request() req
+    @Request() req: AuthRequest
   ){
     return this.rbacService.findAllPermissions((+req.user.userId));
   }

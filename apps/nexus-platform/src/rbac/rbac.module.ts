@@ -14,6 +14,6 @@ import { PermissionGuard } from './guards/permissions.guard';
   ],
   controllers: [RbacController],
   providers: [RbacService, PermissionGuard],
-  exports: [PermissionGuard]
+  exports: [RbacService, PermissionGuard]
 })
 export class RbacModule {}

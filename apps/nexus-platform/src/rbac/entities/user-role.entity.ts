@@ -1,6 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
 import { User } from "../../users/entities/user.entity";
 import { Role } from "../../rbac/entities/roles.entity";
+import { InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({
  tableName: "user_role",
@@ -20,21 +21,24 @@ import { Role } from "../../rbac/entities/roles.entity";
    }
  ]
 })
-export class UserRole extends Model<UserRole>{
+export class UserRole extends Model<
+    InferAttributes<UserRole>,
+    InferCreationAttributes<UserRole, {omit: 'role' | 'user'}>
+    >{
     @Column({
         type: DataType.INTEGER,
     })
     @ForeignKey(() => User)
-    userId: number;
+    declare userId: number;
     @BelongsTo(() => User)
-    user: User;
+    declare user: User;
 
     @Column({
         type: DataType.INTEGER,
     })
     @ForeignKey(() => Role)
-    roleId: number;
+    declare roleId: number;
     @BelongsTo(() => Role)
-    role: Role;
+    declare role: Role;
     
 }

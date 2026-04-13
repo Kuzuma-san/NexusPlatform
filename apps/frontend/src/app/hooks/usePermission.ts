@@ -1,8 +1,7 @@
-import { use } from "react";
 import { instance as axios } from "../api/axios";
 import { useQuery } from "@tanstack/react-query";
 
-export const userPermission = () => {
+export const usePermission = () => {
     const token = localStorage.getItem("nexus_token");
 
     const {data: userPermission = [], isLoading} = useQuery({

@@ -1,4 +1,10 @@
+import { IsString } from "class-validator";
+
 export class CreateLoginDto{
-    identifier: string;
-    password: string;
+    @IsString()
+    identifier!: string;
+
+    @IsString()
+    password!: string;
 }
+// ! = “I promise this will exist at runtime”

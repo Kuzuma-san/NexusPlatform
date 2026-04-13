@@ -1,16 +1,21 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import bcrypt from 'bcrypt';
-import { access } from 'fs';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../users/entities/user.entity';
+import { TokenPayload } from '../interfaces/token.interface';
+import { TokenFactory } from './factories/token.factory';
+import { RbacService } from '../rbac/rbac.service';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
 
     constructor(
         private readonly userService: UsersService,
         private readonly jwtService: JwtService,
+        private readonly tokenFactory: TokenFactory,
+        private readonly rbacService: RbacService,
+        private readonly configService: ConfigService
     ){}
 
     private async passwordHash(password: string): Promise<string> {
@@ -30,11 +35,7 @@ export class AuthService {
         if(await this.userService.isUsernameTaken(createUserDto)){
             throw new ConflictException("Username Taken");
         }
-        console.log("USER OBJECT:", createUserDto);
-        console.log("Username:", createUserDto.username);
-        console.log("EMAIL:", createUserDto.email);
         const passwordHash = await this.passwordHash(createUserDto.password);
-        console.log("Hash:",passwordHash);
         const user = await this.userService.create({
             username: createUserDto.username,
             email: createUserDto.email,
@@ -52,16 +53,24 @@ export class AuthService {
         //identifier can be email or username with password 
         //send both identifier and hash this password so that it matches the hash in db
         const user = await this.validateUser(identifier, password);
-        console.log("USER OBJECT:", user);
-        console.log("ID:", user?.id);
-        console.log("EMAIL:", user?.email);
+        const userRoles = await this.rbacService.getUserRoles(user.id);
+        const rolesIds = userRoles.map(ur => ur.roleId);
+        const roles = await this.rbacService.getRoles(rolesIds);
 
-        const payload = {
+        const payload: TokenPayload = {
             sub: user.id,
             email: user.email,//extra information you want available after authentication
+            roles: roles?.map(role => role.name) || [],// array of role names the user have
         }
-        console.log("PAYLOAD BEING SIGNED:", payload.sub, payload.email);
-        return { access_token: this.jwtService.sign(payload)};
+        // return { access_token: this.jwtService.sign(payload)};
+
+        //generate tokens
+        const tokens = await this.tokenFactory.getCombinedTokens(payload);
+
+        //save refresh hash to db
+        await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
+
+        return tokens;
     }
     
     async validateUser(identifier: string, pass: string) {
@@ -71,16 +80,42 @@ export class AuthService {
             throw new NotFoundException("User Not Found");
         }
 
-        const userData = user.get({ plain: true }); // ✅ KEY FIX
-
-        console.log("Validate password:", pass);
+        const userData = user.get({ plain: true });
 
         const isMatch = await bcrypt.compare(pass, userData.password);
-        if (!isMatch && pass!==userData.password) {
+        if (!isMatch) {//&& pass!==userData.password
             throw new UnauthorizedException("Invalid credentials");
         }
 
-        const { password, ...result } = userData; // ✅ now works
+        const { password, ...result } = userData;
         return result;
     }
+
+    async refreshTokens(token: string){
+        const payload = await this.jwtService.verifyAsync(token, {
+            secret: this.configService.get('JWT_REFRESH_SECRET')
+        });
+        const {sub} = payload;
+        
+        const user = await this.userService.findOne(sub);
+
+        //Also handle the edge case where currentHashedRefreshToken is null (logged out user):
+        if(!user.currentHashedRefreshToken) throw new UnauthorizedException("No active session");
+
+        //check if the refresh token for the user is the one stored in db cuz can be of some other user's or old token
+        const isValid = await bcrypt.compare(token, user.currentHashedRefreshToken);
+        if(!isValid) throw new UnauthorizedException("Unauthorized Token");
+
+        const {iat,exp, ...cleanPayload} = payload;
+        const tokens = await this.tokenFactory.getCombinedTokens(cleanPayload);
+        await this.userService.setCurrentRefreshToken(tokens.refreshToken, sub);
+
+        return tokens;
+    } 
+
+    async logout(userId: number) {
+        // const user = await this.userService.findOne(userId);
+        return this.userService.removeRefreshToken(userId);
+    }
 }
+// client sends accesstoken -> server sends 401 token expired -> client sends refresh token -> if not valid logout -> if valid new access and refresh token and send back to client

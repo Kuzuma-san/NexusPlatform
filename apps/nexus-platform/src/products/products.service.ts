@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Currency, Product } from './entities/product.entity';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
@@ -38,7 +38,7 @@ export class ProductsService {
   //Admin Seller
   async update(id: number, updateProductDto: UpdateProductDto) {
     const [numberOfRowsAffected] = await this.productModel.update(updateProductDto,{
-      where: [{id}],
+      where: {id},
     });
 
     return { numberOfRowsAffected };
@@ -46,12 +46,12 @@ export class ProductsService {
 
   //Admin and seller..seller only his products
   async remove(id: number) {
-    const product = this.findOne(id);
+    const product = await this.findOne(id);
     if(!product){
       throw new NotFoundException("Product Not Found");
     }
     return this.productModel.destroy({
-      where: [{id}],
+      where: {id},
     })
   }
 }

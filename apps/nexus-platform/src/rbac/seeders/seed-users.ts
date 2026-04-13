@@ -1,5 +1,6 @@
 import { use } from "passport";
 import { User } from "../../users/entities/user.entity";
+import bcrypt from 'bcrypt';
 export const USERS = [
     {
         username: 'admin-user-tester',
@@ -30,7 +31,8 @@ export async function seedUsers() {
       where: { email: user.email },
       defaults: {
         username: user.username,
-        password: user.password,
+        password: await bcrypt.hash(user.password, 10),
+        email: user.email
       },
     });
   }

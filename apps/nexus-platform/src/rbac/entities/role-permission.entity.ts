@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize
 import { User } from "../../users/entities/user.entity";
 import { Role } from "./roles.entity";
 import { Permission } from "./permissions.entity";
+import { InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({
  tableName: "role_permission",
@@ -20,20 +21,23 @@ import { Permission } from "./permissions.entity";
    }
  ]
 })
-export class RolePermission extends Model<RolePermission>{
+export class RolePermission extends Model<
+  InferAttributes<RolePermission>,
+  InferCreationAttributes<RolePermission, {omit: 'permission' | 'role'}>
+>{
     @Column({
         type: DataType.INTEGER,
     })
     @ForeignKey(() => Role)
-    roleId: number;
+    declare roleId: number;
     @BelongsTo(() => Role)
-    role: Role;
+    declare role: Role;
 
     @Column({
         type: DataType.INTEGER,
     })
     @ForeignKey(() => Permission)
-    permissionId: number;
+    declare permissionId: number;
     @BelongsTo(() => Permission)
-    permission: Permission;
+    declare permission: Permission;
 }

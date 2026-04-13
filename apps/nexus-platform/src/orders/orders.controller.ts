@@ -14,7 +14,7 @@ export class OrdersController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @RequirePermissions(PERMISSIONS.ORDER_CREATE)
   @Post()
-  create(@Request() req, @Body() createOrderDto: CreateOrderDto) {
+  create(@Request() req: any, @Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto, req.user?.userId);
   }
 

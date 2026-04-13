@@ -38,7 +38,8 @@ import { UserRole } from '../rbac/entities/user-role.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadModels: true,
-      synchronize: true,
+      synchronize: false,
+      logging: console.log,
       models: [User,Product,OrderItem,Order,Permission,Role,RolePermission,UserRole]
     }),
   ],

@@ -1,19 +1,24 @@
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
 import { RolePermission } from "./role-permission.entity";
+import { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 
 @Table({tableName: 'permissions'})
-export class Permission extends Model<Permission>{
+export class Permission extends Model<
+    InferAttributes<Permission>,
+    InferCreationAttributes<Permission, {omit: 'rolePermission'}>
+>{
     @Column({
         type: DataType.STRING,
         unique: true
     })
-    name: string;
+    declare name: string;
 
     @Column({
         type: DataType.STRING,
+        allowNull: true
     })
-    description: string;
+    declare description?: CreationOptional<string>;
 
     @HasMany(() => RolePermission)
-    rolePermission: RolePermission[];
+    declare rolePermission: RolePermission[];
 }
