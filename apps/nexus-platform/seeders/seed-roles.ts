@@ -1,4 +1,4 @@
-import { Role } from "../entities/roles.entity";
+import { Role } from "../src/rbac/entities/roles.entity";
 
 export const ROLES = [
   'admin',

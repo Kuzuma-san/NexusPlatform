@@ -4,10 +4,13 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 
 @Catch() // catch ALL exceptions
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);//Tags logs with class name. Eg. [GlobalExceptionFilter] Error Occured
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
@@ -16,10 +19,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
 
-    // ✅ Handle known HTTP exceptions
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-
       const res = exception.getResponse();
       message =
         typeof res === 'string'
@@ -27,16 +28,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           : (res as any).message || 'Error';
     }
 
-    // ✅ Log error (you can replace with logger service)
-    console.error({
+    // Log 5xx as errors, 4xx as warnings (4xx are client mistakes, not server problems)
+    const logContext = {//Attach useful debugging info:
+      method: request.method, // eg. GET or POST /users ...
       path: request.url,
-      method: request.method,
-      body: request.body,
-      error: exception,
-    });
+      statusCode: status,
+      // Never log request.body — it can contain passwords and tokens
+    };
 
-    // ✅ Send sanitized response
-    response.status(status).json({
+    if (status >= 500) {
+      this.logger.error(
+        `${request.method} ${request.url} → ${status}`,
+        exception instanceof Error ? exception.stack : String(exception),//this is stack trace..if real error log full stack trace else fallback string
+        logContext,//attack metadata
+      );//Log message like: GET /users → 500
+    } else {
+      this.logger.warn(
+        `${request.method} ${request.url} → ${status}: ${message}`,
+        logContext,
+      );
+    }
+
+    response.status(status).json({//send response to client
       success: false,
       statusCode: status,
       message,
@@ -45,3 +58,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     });
   }
 }
+/**Final response sent to frontend
+ {
+  "success": false,
+  "statusCode": 404,
+  "message": "User not found",
+  "timestamp": "2026-04-13T12:00:00Z",
+  "path": "/users/123"
+}
+ */

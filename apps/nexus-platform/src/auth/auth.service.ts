@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +9,7 @@ import { RbacService } from '../rbac/rbac.service';
 import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
 
     constructor(
         private readonly userService: UsersService,
@@ -30,9 +31,11 @@ export class AuthService {
 
         if(await this.userService.isExistingUser(createUserDto.email)){
             //email already exists
+            this.logger.warn("Email Already Exists!");
             throw new ConflictException("Email Already Exists");
         }
         if(await this.userService.isUsernameTaken(createUserDto)){
+            this.logger.warn("Username Already Exists!");
             throw new ConflictException("Username Taken");
         }
         const passwordHash = await this.passwordHash(createUserDto.password);
@@ -42,6 +45,7 @@ export class AuthService {
             password: passwordHash,
             },
         );
+        this.logger.log(`User created: userId=${user.id}`);
         // const userData = user.get({ plain: true });
         // delete userData.password;
         // return userData;
@@ -59,16 +63,13 @@ export class AuthService {
 
         const payload: TokenPayload = {
             sub: user.id,
-            email: user.email,//extra information you want available after authentication
-            roles: roles?.map(role => role.name) || [],// array of role names the user have
+            email: user.email,
+            roles: roles.map(role => role.name),
         }
-        // return { access_token: this.jwtService.sign(payload)};
 
-        //generate tokens
         const tokens = await this.tokenFactory.getCombinedTokens(payload);
-
-        //save refresh hash to db
         await this.userService.setCurrentRefreshToken(tokens.refreshToken, user.id);
+        this.logger.log(`User logged in: userId=${user.id}`);
 
         return tokens;
     }
@@ -77,13 +78,15 @@ export class AuthService {
         const user = await this.userService.findUser(identifier);
 
         if (!user) {
+            this.logger.warn(`User not found for identifier: ${identifier}`);
             throw new NotFoundException("User Not Found");
         }
 
         const userData = user.get({ plain: true });
 
         const isMatch = await bcrypt.compare(pass, userData.password);
-        if (!isMatch) {//&& pass!==userData.password
+        if (!isMatch) {
+            this.logger.warn(`Invalid password attempt for identifier: ${identifier}`);
             throw new UnauthorizedException("Invalid credentials");
         }
 
@@ -98,13 +101,22 @@ export class AuthService {
         const {sub} = payload;
         
         const user = await this.userService.findOne(sub);
+        if (!user) {
+            this.logger.warn(`User Not Found!`);
+            throw new NotFoundException("User Not Found");
+        }
 
         //Also handle the edge case where currentHashedRefreshToken is null (logged out user):
-        if(!user.currentHashedRefreshToken) throw new UnauthorizedException("No active session");
-
+        if(!user.currentHashedRefreshToken) {
+            this.logger.warn(`No Active Session for the User with ID: ${user.id}`);
+            throw new UnauthorizedException("No active session");
+        }
         //check if the refresh token for the user is the one stored in db cuz can be of some other user's or old token
         const isValid = await bcrypt.compare(token, user.currentHashedRefreshToken);
-        if(!isValid) throw new UnauthorizedException("Unauthorized Token");
+        if(!isValid) {
+            this.logger.warn(`Refresh token mismatch`);
+            throw new UnauthorizedException("Unauthorized Token");
+        }
 
         const {iat,exp, ...cleanPayload} = payload;
         const tokens = await this.tokenFactory.getCombinedTokens(cleanPayload);
@@ -114,8 +126,8 @@ export class AuthService {
     } 
 
     async logout(userId: number) {
-        // const user = await this.userService.findOne(userId);
-        return this.userService.removeRefreshToken(userId);
+        await this.userService.removeRefreshToken(userId);
+        this.logger.log(`User logged out: userId=${userId}`);
     }
 }
 // client sends accesstoken -> server sends 401 token expired -> client sends refresh token -> if not valid logout -> if valid new access and refresh token and send back to client

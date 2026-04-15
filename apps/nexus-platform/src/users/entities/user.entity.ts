@@ -1,11 +1,11 @@
-import { Model, Table, Column, DataType, HasMany } from "sequelize-typescript";
+import { Model, Table, Column, DataType, HasMany, DeletedAt } from "sequelize-typescript";
 import { Order } from "../../orders/entities/order.entity";
 import { UserRole } from "../../rbac/entities/user-role.entity";
 import { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 
 
 
-@Table({tableName: 'users'})
+@Table({tableName: 'users', paranoid: true})
 export class User extends Model<
     InferAttributes<User>,
     InferCreationAttributes<User, {omit: 'userRole' | 'orders'}>>{
@@ -44,6 +44,9 @@ export class User extends Model<
         defaultValue: true,
     })
     declare isActive: CreationOptional<boolean>;
+
+    @DeletedAt
+    declare deletedAt: Date | null;
 
     @Column({
         type: DataType.BOOLEAN,

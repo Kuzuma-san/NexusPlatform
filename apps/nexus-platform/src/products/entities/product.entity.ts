@@ -1,8 +1,8 @@
-import { Model, Table, Column, DataType, HasMany } from 'sequelize-typescript';
+import { Model, Table, Column, DataType, HasMany, DeletedAt } from 'sequelize-typescript';
 import { OrderItem } from '../../orders/entities/order-item.entity';
-import { Currency } from '../../common/constants/currency';
+import { Currency, CURRENCY_VALUES } from '../../common/constants/currency';
 import { InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
-@Table({tableName: 'products'})
+@Table({tableName: 'products', paranoid: true})
 export class Product extends Model<
     InferAttributes<Product>,
     InferCreationAttributes<Product, {omit: 'items'}>
@@ -20,7 +20,7 @@ export class Product extends Model<
     declare price: number;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.ENUM(...CURRENCY_VALUES),
         defaultValue: "INR",
     })
     declare currency: CreationOptional<Currency>;
@@ -36,6 +36,9 @@ export class Product extends Model<
         allowNull: true
     })
     declare description?: CreationOptional<string>;
+
+    @DeletedAt
+    declare deletedAt: Date | null;
 
     @HasMany(() => OrderItem)
     declare items: OrderItem[]; //single product ccan be in many orderItems hence the array

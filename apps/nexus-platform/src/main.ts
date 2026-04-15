@@ -6,11 +6,11 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { seedPermissions } from './rbac/seeders/seed-permissions';
-import { seedRoles } from './rbac/seeders/seed-roles';
-import { seedRolePermissions } from './rbac/seeders/seed-role-permissions';
-import { seedUsers } from './rbac/seeders/seed-users';
-import { seedUserRoles } from './rbac/seeders/seed-user-roles';
+import { seedPermissions } from '../seeders/seed-permissions';
+import { seedRoles } from '../seeders/seed-roles';
+import { seedRolePermissions } from '../seeders/seed-role-permissions';
+import { seedUsers } from '../seeders/seed-users';
+import { seedUserRoles } from '../seeders/seed-user-roles';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './auth/global-exception-filter';
 

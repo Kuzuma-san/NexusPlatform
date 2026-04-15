@@ -1,10 +1,10 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table, Model, HasMany } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, Table, Model, HasMany, DeletedAt } from "sequelize-typescript";
 import { Currency, CURRENCY_VALUES } from "../../common/constants/currency";
 import { User } from "../../users/entities/user.entity";
 import { OrderItem } from "./order-item.entity";
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 
-@Table({tableName: 'orders'})
+@Table({tableName: 'orders', paranoid: true})
 export class Order extends Model<
     InferAttributes<Order>,
     InferCreationAttributes<Order, {omit: 'user' | 'items'}>
@@ -22,6 +22,9 @@ export class Order extends Model<
         defaultValue: "INR"
     })
     declare currency: Currency;
+
+    @DeletedAt
+    declare deletedAt: Date | null;
 
     @ForeignKey(
         () => {

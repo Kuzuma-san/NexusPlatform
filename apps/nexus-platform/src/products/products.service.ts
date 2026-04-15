@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -6,6 +6,7 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
+  private readonly logger = new Logger(ProductsService.name);
 
   constructor(
     @InjectModel(Product)
@@ -13,16 +14,10 @@ export class ProductsService {
   ){}
 
   //Admin Seller...User and Guest cannot make products
-  create(createProductDto: CreateProductDto) {
-    // const currency: Currency = "INR"; 
-    // return this.productModel.create({
-    //   name: createProductDto.name,
-    //   price: createProductDto.price,
-    //   currency: currency,
-    //   stock: createProductDto.stock,
-    //   description: createProductDto.desciption
-    // });
-    return this.productModel.create(createProductDto);
+  async create(createProductDto: CreateProductDto) {
+    const product = await this.productModel.create(createProductDto);
+    this.logger.log(`Product created: productId=${product.id}`);
+    return product;
   }
 
   //All
@@ -40,7 +35,11 @@ export class ProductsService {
     const [numberOfRowsAffected] = await this.productModel.update(updateProductDto,{
       where: {id},
     });
-
+    if(numberOfRowsAffected === 0) {
+      this.logger.warn(`Product update had no effect: productId=${id}`);
+    } else {
+      this.logger.log(`Product updated: productId=${id}`);
+    }
     return { numberOfRowsAffected };
   }
 
@@ -48,10 +47,10 @@ export class ProductsService {
   async remove(id: number) {
     const product = await this.findOne(id);
     if(!product){
+      this.logger.warn(`Delete attempted on non-existent product: productId=${id}`);
       throw new NotFoundException("Product Not Found");
     }
-    return this.productModel.destroy({
-      where: {id},
-    })
+    await this.productModel.destroy({ where: {id} });
+    this.logger.log(`Product deleted: productId=${id}`);
   }
 }

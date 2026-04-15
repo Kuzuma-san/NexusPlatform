@@ -1,9 +1,9 @@
-import { User } from "../../users/entities/user.entity";
-import { Role } from "../entities/roles.entity";
-import { USERS } from "../constants/users";
-import { USER_ROLES } from "../constants/user-roles";
+import { User } from "../src/users/entities/user.entity";
+import { Role } from "../src/rbac/entities/roles.entity";
+import { USERS } from "../src/rbac/constants/users";
+import { USER_ROLES } from "../src/rbac/constants/user-roles";
 import { Op } from "sequelize";
-import { UserRole } from "../entities/user-role.entity";
+import { UserRole } from "../src/rbac/entities/user-role.entity";
 
 export async function seedUserRoles() {
   for(const userName of Object.values(USERS)){//users are object of objects

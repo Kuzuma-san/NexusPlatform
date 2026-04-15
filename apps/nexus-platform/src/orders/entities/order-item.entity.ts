@@ -1,10 +1,9 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table, Model } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, Table, Model, DeletedAt } from "sequelize-typescript";
 import { Product } from "../../products/entities/product.entity";
 import { Order } from "./order.entity";
-import { Col } from "sequelize/types/utils";
 import { InferAttributes, InferCreationAttributes } from "sequelize";
 
-@Table({tableName: 'order_item'})
+@Table({tableName: 'order_item', paranoid: true})
 export class OrderItem extends Model<
     InferAttributes<OrderItem>,
     InferCreationAttributes<OrderItem, {omit: 'order' | 'product'}>
@@ -28,6 +27,9 @@ export class OrderItem extends Model<
         type: DataType.DECIMAL,
     })
     declare priceAtPurchase: number;
+
+    @DeletedAt
+    declare deletedAt: Date | null;
 
     @Column({
         type: DataType.DECIMAL,

@@ -1,4 +1,4 @@
-import { Permission } from "../entities/permissions.entity";
+import { Permission } from "../src/rbac/entities/permissions.entity";
 export const PERMISSIONS = [
   'user:create',
   'user:read',

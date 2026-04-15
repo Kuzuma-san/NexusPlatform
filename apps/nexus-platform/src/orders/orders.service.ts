@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
@@ -10,6 +10,7 @@ import { Op, Sequelize } from 'sequelize';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
 
   constructor(
     @InjectModel(Order)
@@ -41,6 +42,7 @@ export class OrdersService {
       for(const item of createOrderDto.items){
         const product = idToProductMap.get(item.productId);
         if(!product){
+          this.logger.warn(`Order rejected: productId=${item.productId} not found`);
           throw new NotFoundException("Product not Found");
         }
         const quantity = item.quantity;
@@ -48,7 +50,7 @@ export class OrdersService {
         const stock = product.stock;
 
         if(stock < quantity){
-          //we send error to frontend and then it decides what to shwo to the user
+          this.logger.warn(`Order rejected: insufficient stock for productId=${item.productId}, requested=${quantity}, available=${stock}`);
           throw new BadRequestException("Insufficient Stock");
         }
         //calculate the totalamount 
@@ -61,6 +63,7 @@ export class OrdersService {
         currency: createOrderDto.currency ?? "INR",
         userId,
       }, {transaction: t});
+      this.logger.log(`Order created: orderId=${order.id}, userId=${userId}, total=${totalAmount}`);
       //create orderITem for each Item and reduce the stock
       await Promise.all(
         createOrderDto.items.map((item) => {//With Promise.all, you use .map() instead of a for loop. .map() does not await — it just collects all the Promises into an array, then Promise.all fires them together:

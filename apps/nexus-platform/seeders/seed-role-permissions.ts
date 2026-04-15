@@ -1,8 +1,8 @@
-import { Role } from '../entities/roles.entity';
-import { Permission } from '../entities/permissions.entity';
-import { RolePermission } from '../entities/role-permission.entity';
-import { ROLES } from '../constants/roles';
-import { ROLE_PERMISSIONS } from '../constants/role-permissions';
+import { Role } from '../src/rbac/entities/roles.entity';
+import { Permission } from '../src/rbac/entities/permissions.entity';
+import { RolePermission } from '../src/rbac/entities/role-permission.entity';
+import { ROLES } from '../src/rbac/constants/roles';
+import { ROLE_PERMISSIONS } from '../src/rbac/constants/role-permissions';
 import { Op } from 'sequelize';
 
 export async function seedRolePermissions() {

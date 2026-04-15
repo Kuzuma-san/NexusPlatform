@@ -1,5 +1,5 @@
-import { use } from "passport";
-import { User } from "../../users/entities/user.entity";
+
+import { User } from "../src/users/entities/user.entity";
 import bcrypt from 'bcrypt';
 export const USERS = [
     {

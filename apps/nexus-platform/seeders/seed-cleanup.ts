@@ -1,5 +1,5 @@
-import { Role } from "../entities/roles.entity";
-import { UserRole } from "../entities/user-role.entity";
+import { Role } from "../src/rbac/entities/roles.entity";
+import { UserRole } from "../src/rbac/entities/user-role.entity";
 
 export async function removeGuestRole() {
   const guestRole = await Role.findOne({
